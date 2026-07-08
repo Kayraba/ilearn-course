@@ -1,0 +1,20 @@
+process.env.JWT_SECRET='test-secret';process.env.DATABASE_URL='postgresql://ilearn:ilearn@127.0.0.1:5432/ilearn';
+process.env.SEED_ADMIN_EMAIL='admin@pilot.test';process.env.SEED_ADMIN_PASSWORD='TestPass123!';
+const path=require('path'),express=require('express'),cookieParser=require('cookie-parser');
+const R='/home/user/kwba-agency/ilearn';const {init,close}=require(R+'/src/db');const {seedDatabase}=require(R+'/src/seed');const api=require(R+'/src/routes');
+const {chromium}=require('/opt/node22/lib/node_modules/playwright');const S='/tmp/claude-0/-home-user-kwba-agency/c914ab2e-f07f-5468-8d69-eddb6f64eedc/scratchpad';
+(async()=>{await init();await seedDatabase({reset:true,quiet:true});
+ const app=express();app.use(express.json());app.use(cookieParser());app.use('/api',api);
+ app.use(express.static(path.join(R,'public'),{extensions:['html']}));app.get(/^(?!\/api).*/,(q,r)=>r.sendFile(path.join(R,'public','index.html')));
+ const srv=await new Promise(r=>{const s=app.listen(0,()=>r(s));});const base='http://127.0.0.1:'+srv.address().port;
+ const br=await chromium.launch({executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome'});
+ const p=await br.newPage({viewport:{width:1100,height:760}});const errs=[];p.on('pageerror',e=>errs.push(e.message));
+ await p.goto(base,{waitUntil:'networkidle'});
+ await p.fill('#learnerName','Kayra');await p.click('#learnerSignin');await p.waitForSelector('#greet');
+ await p.click('#continueBtn');await p.waitForSelector('#video .az-scene'); // lesson 1
+ await p.waitForTimeout(500); await p.locator('#video').screenshot({path:S+'/better-title.png'});
+ console.log('frame1 cap:', await p.locator('.az-cap p').textContent());
+ await p.waitForTimeout(11800); await p.locator('#video').screenshot({path:S+'/better-done.png'});
+ console.log('final cap:', await p.locator('.az-cap p').textContent());
+ console.log('errors:', errs.length?errs.slice(0,3).join(' | '):'none');
+ await br.close();srv.close();await close();})().catch(e=>{console.error('FAIL',e.message);process.exit(1);});

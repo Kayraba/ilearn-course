@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#F4F8FA" />
+<meta name="description" content="iLearn by KWBA Agency - an accessible digital-skills learning platform for supported adults." />
+<title>iLearn - by KWBA Agency</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Inter+Tight:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/styles.css">
+<link rel="stylesheet" href="/css/pro.css">
+</head>
+<body>
+
+<section class="auth" id="auth">
+  <div class="auth-card">
+    <img src="/img/ilearn-logo.png" alt="iLearn by KWBA Agency - Building Digital Independence" class="auth-logo">
+    <div class="auth-badge"><span class="chip">Client pilot platform</span></div>
+
+    <div class="seg" role="tablist" id="authSeg">
+      <button role="tab" aria-selected="true" data-mode="learner">I'm learning</button>
+      <button role="tab" aria-selected="false" data-mode="staff">I'm staff</button>
+    </div>
+
+    <div id="learnerAuth">
+      <h2>Start learning</h2>
+      <p class="lede">Enter your name to start. iLearn will save your progress, lesson completions and certificate under this name.</p>
+      <div class="field"><label for="learnerName">Your name</label><input id="learnerName" type="text" autocomplete="name" placeholder="Type your full name"></div>
+      <button class="btn btn-primary" id="learnerSignin" style="width:100%">Start my course</button>
+      <div class="err" id="learnerErr"></div>
+      <div class="hint">Use the same name each time to continue your progress.</div>
+    </div>
+
+    <div id="staffAuth" class="hidden">
+      <h2>Staff sign in</h2>
+      <p class="lede">For service leads, tutors and administrators managing learner progress.</p>
+      <div class="field"><label for="email">Email</label><input id="email" type="email" autocomplete="username" placeholder="name@organisation.org"></div>
+      <div class="field"><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" placeholder="Password"></div>
+      <button class="btn btn-primary" id="staffSignin" style="width:100%">Sign in</button>
+      <div class="err" id="staffErr"></div>
+      <div class="hint">Use the staff account created for your organisation. Credentials are configured securely for deployment.</div>
+    </div>
+    <nav class="policy-links" aria-label="Pilot information">
+      <a href="/legal/privacy.html" target="_blank" rel="noopener">Privacy</a>
+      <a href="/legal/accessibility.html" target="_blank" rel="noopener">Accessibility</a>
+      <a href="/legal/safeguarding.html" target="_blank" rel="noopener">Safeguarding</a>
+      <a href="/legal/pilot.html" target="_blank" rel="noopener">Pilot status</a>
+    </nav>
+  </div>
+</section>
+
+<div id="app" class="hidden">
+  <header class="topbar">
+    <div class="logo"><span class="i">i</span>Learn</div>
+    <span class="crumb" id="crumb"></span>
+    <div class="right">
+      <button class="iconbtn" id="textSizeBtn" title="Change text size" aria-label="Change text size">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19 9 5l5 14M6 13h6M15 11h6M18 8v6"/></svg>
+      </button>
+      <div class="me"><div class="avatar" id="meAvatar"></div><div class="nm"><b id="meName"></b><span id="meSub"></span></div></div>
+      <button class="iconbtn" id="signoutBtn" title="Sign out" aria-label="Sign out">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main id="main"></main>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-label="Learner detail"></aside>
+
+<div class="modal-scrim" id="modalScrim"><div class="modal" id="modal"></div></div>
+
+<div class="toast" id="toast"></div>
+
+<template id="tpl-learner-home">
+  <div class="view container">
+    <div class="pagehead"><h1 id="greet"></h1><p>Pick up where you left off. Calm, clear, one step at a time.</p></div>
+    <div class="hero">
+      <div class="hero-info">
+        <span class="chip">Your course</span>
+        <h2 id="courseTitle"></h2>
+        <p id="courseDesc"></p>
+        <button class="btn btn-primary" id="continueBtn">Continue learning
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+      </div>
+      <div class="ring">
+        <svg width="138" height="138"><circle cx="69" cy="69" r="58" fill="none" stroke="#E4ECF1" stroke-width="13"/>
+          <circle class="fg" id="ringFg" cx="69" cy="69" r="58" fill="none" stroke="#138A8C" stroke-width="13" stroke-linecap="round" stroke-dasharray="364" stroke-dashoffset="364"/></svg>
+        <div class="c"><b id="ringPct">0%</b><span>complete</span></div>
+      </div>
+    </div>
+    <div class="section-title">Your lessons <span class="count" id="lessonCount"></span></div>
+    <div class="lessons" id="lessonList"></div>
+    <div class="cert-card is-locked" id="certCard">
+      <div class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="6"/><path d="M9 14.5 8 22l4-2 4 2-1-7.5"/></svg></div>
+      <div class="ct"><b id="certCardTitle">Certificate</b><p id="certCardText"></p></div>
+      <button class="btn btn-ghost btn-sm" id="viewCertBtn" disabled>View certificate</button>
+    </div>
+  </div>
+</template>
+
+<template id="tpl-lesson">
+  <div class="view container">
+    <div class="lesson-head">
+      <button class="btn btn-ghost btn-sm" id="lessonBack"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>Back</button>
+      <div class="ttl" id="lessonTitle">Lesson<small id="lessonSub"></small></div>
+    </div>
+    <div class="video" id="video">
+      <button class="play" id="playBtn" aria-label="Play lesson"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
+      <div class="vmeta"><b id="videoTitle"></b><p>Your lesson video will play here. Watch, pause, practise, then try the activity below.</p></div>
+      <div class="caption" id="caption"></div>
+      <div class="progress"></div>
+    </div>
+    <div class="lesson-grid">
+      <div class="panel">
+        <h3>In this lesson</h3>
+        <p class="goal" id="lessonGoal"></p>
+        <ol class="steps" id="lessonSteps"></ol>
+      </div>
+      <div class="carer" id="carerNote"></div>
+    </div>
+    <div class="pro-note"><b>How this lesson works</b><span>Watch the demonstration, complete the guided activity below, then staff record how much help was needed. That builds a useful progress report.</span></div>
+    <div class="tasks-wrap" id="tasksWrap">
+      <div class="tasks-head"><span class="chip chip-teal">Your turn</span><h3>Guided practice: build the skill for this session</h3><p class="tasks-sub" id="tasksSub"></p></div>
+      <div class="tasks" id="taskList"></div>
+    </div>
+    <div class="complete-row">
+      <p class="lead">When you've watched and tried it, mark it complete. <strong>Staff:</strong> record how much help was needed this time.</p>
+      <div class="levels" id="levels">
+        <button data-lv="independent">Did it alone</button>
+        <button data-lv="verbal">A few words of help</button>
+        <button data-lv="gesture">A pointing prompt</button>
+        <button data-lv="physical">Hand-over-hand</button>
+      </div>
+      <div class="complete-actions">
+        <button class="btn btn-success" id="completeBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Mark lesson complete</button>
+        <span class="note">Recording the help level is optional. It builds the progress report.</span>
+      </div>
+    </div>
+  </div>
+</template>
+
+<template id="tpl-admin">
+  <div class="view container">
+    <div class="pagehead"><h1 id="adminOrg"></h1><p>Learner progress, safeguarding records and reports</p></div>
+    <div class="stats" id="statCards"></div>
+    <div class="toolbar">
+      <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4-4"/></svg><input id="adminSearch" placeholder="Search learners..." aria-label="Search learners"></div>
+      <button class="btn btn-primary btn-sm" id="addLearnerBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>Add learner</button>
+      <button class="btn btn-ghost btn-sm" id="exportBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 21h14"/></svg>Export CSV</button>
+      <button class="btn btn-ghost btn-sm" id="auditBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 2M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>Activity log</button>
+      <button class="btn btn-ghost btn-sm" id="printBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6M6 18H5a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1M6 14h12v8H6z"/></svg>Print</button>
+    </div>
+    <div class="tablewrap">
+      <table><thead><tr><th>Learner</th><th>Course</th><th>Progress</th><th>Independence</th><th>Last active</th><th>Status</th></tr></thead>
+      <tbody id="adminRows"></tbody></table>
+    </div>
+  </div>
+</template>
+
+<template id="tpl-cert">
+  <div class="view container cert-wrap">
+    <div class="lesson-head cert-actions">
+      <button class="btn btn-ghost btn-sm" id="certBack"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>Back</button>
+      <button class="btn btn-primary btn-sm" id="certPrint" style="margin-left:auto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6M6 18H5a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1M6 14h12v8H6z"/></svg>Print / Save PDF</button>
+    </div>
+    <div class="certificate">
+      <div class="seal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="6"/><path d="M9 14.5 8 22l4-2 4 2-1-7.5"/></svg></div>
+      <div class="kicker">Certificate of Completion</div>
+      <div class="ttl" id="certCourse">Confident Computing</div>
+      <div class="sub">iLearn - by KWBA Agency</div>
+      <div class="award">This is proudly awarded to</div>
+      <div class="name" id="certName">Learner Name</div>
+      <p class="body">for completing the Confident Computing course and learning the foundations of using a computer, Microsoft Word and Microsoft Excel.</p>
+      <div class="foot">
+        <span><b id="certOrg">Care Provider</b>Delivered with</span>
+        <span><b id="certDate"></b>Date</span>
+        <span><b id="certCode"></b>Certificate no.</span>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script src="/js/animations.js"></script>
+<script src="/js/app.js"></script>
+</body>
+</html>

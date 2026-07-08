@@ -1,0 +1,51 @@
+iLearn — Confident Computing · Voiceover script (16 lessons)
+Voice used: en-GB-SoniaNeural (free Microsoft Edge Neural TTS)
+
+Lesson 01 — Turn on & sign in
+Today we are learning the full start-up routine.  (pause)  We will turn the computer on, wait calmly, sign in carefully, and check that the desktop is ready.  (pause)  We are not rushing. Waiting is part of using a computer well.
+
+Lesson 02 — Mouse & click
+The mouse moves the pointer. The pointer is how we reach things on the screen.  (pause)  Today we will move slowly, stop on the target, and click once to choose.
+
+Lesson 03 — Double-click
+A double-click opens things. The trick is two quick clicks while the mouse stays still.  (pause)  If it does not open the first time, that is okay. We calmly try again.
+
+Lesson 04 — Keyboard
+Today the keyboard becomes a tool for messages.  (pause)  We will type slowly, use Space between words, Enter for a new line, and Backspace to fix mistakes.
+
+Lesson 05 — Open & close
+A program opens inside a window.  (pause)  The buttons at the top help us manage the window. X means we are finished with it.
+
+Lesson 06 — Save a file
+Saving means keeping our work. A good file name helps us find it later.  (pause)  Today we will make a real note, save it in Documents, close it, and find it again.
+
+Lesson 07 — Files & folders
+A file is one piece of work. A folder holds files together.  (pause)  Today we will open Documents, create a practice folder, and place work where it belongs.
+
+Lesson 08 — Practice: save & find
+Today we put the whole routine together.  (pause)  Open Word, type a note, save it, close it, then find it again. This is where independence starts to show.
+
+Lesson 09 — Word: type a sentence
+Now we use Word for real writing.  (pause)  A strong sentence starts with a capital letter, uses spaces between words, and ends with a full stop.
+
+Lesson 10 — Word: copy/paste/undo
+Editing means changing work without starting again.  (pause)  Copy, paste and undo are three powerful tools. Nothing breaks today; undo can take us back.
+
+Lesson 11 — Word: bold/italic/colour
+Formatting helps readers notice important words.  (pause)  The rule is choose first, then change. We select text before pressing B, I, U or colour.
+
+Lesson 12 — Word: title & alignment
+A good title tells the reader what the page is about.  (pause)  We will make the title bigger, bold and centred, then write normal text underneath.
+
+Lesson 13 — Word: lists/spell/PDF
+Lists make information easier to read.  (pause)  Spell check helps us improve work, and a PDF is useful because it looks the same when shared or printed.
+
+Lesson 14 — Excel: cells/rows/cols
+Excel is a grid. Each box is a cell.  (pause)  Columns use letters across the top, rows use numbers down the side, and the first cell is A1.
+
+Lesson 15 — Excel: tidy table
+A table keeps information tidy.  (pause)  Today we will make headings, enter real data, make headers bold, widen columns and format prices as money.
+
+Lesson 16 — Excel: formulas & total
+Excel can do maths for us. A formula starts with equals.  (pause)  We can type a simple sum, use cell names, and use AutoSum to total a whole column.
+

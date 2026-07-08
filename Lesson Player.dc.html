@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+@keyframes azblink{0%,50%{opacity:1}51%,100%{opacity:0}}
+@keyframes azrip{0%{transform:scale(.4);opacity:.55}100%{transform:scale(2.4);opacity:0}}
+@keyframes azpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+*{box-sizing:border-box}
+html,body{margin:0}
+.az-track:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid #1b8f8a;outline-offset:3px}
+@media (prefers-reduced-motion: reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important}}
+</style>
+</helmet>
+<div style="min-height:100vh;background:radial-gradient(120% 120% at 50% 0,#f7f5f0,#eceee9);display:flex;align-items:center;justify-content:center;padding:32px;font-family:Inter,system-ui,sans-serif">
+ <div ref="{{ frameRef }}" tabindex="-1" style="width:100%;max-width:1000px;background:#fff;border-radius:24px;box-shadow:0 40px 110px rgba(12,39,77,.18);overflow:hidden">
+
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 26px;border-bottom:1px solid #eef0f3">
+    <div style="display:flex;align-items:center;gap:14px">
+      <div style="position:relative;width:46px;height:46px;border-radius:13px;background:linear-gradient(150deg,#12395f,#0c2742);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(12,39,77,.3)">
+        <span style="font:700 26px Lexend,sans-serif;color:#fff;line-height:1">i</span>
+        <span style="position:absolute;right:-4px;top:-4px;width:14px;height:14px;border-radius:4px;background:#1b8f8a;box-shadow:0 2px 6px rgba(27,143,138,.5)"></span>
+      </div>
+      <div>
+        <div style="font:700 19px Lexend,sans-serif;color:#12395f;line-height:1.1">iLearn</div>
+        <div style="font:500 12px Inter,sans-serif;color:#6b7785;letter-spacing:1.5px;text-transform:uppercase;margin-top:2px">Confident Computing</div>
+      </div>
+    </div>
+    <div ref="{{ numRef }}" style="font:600 14px Inter,sans-serif;color:#12395f;background:#eef4f3;border:1px solid #d8e8e5;border-radius:999px;padding:8px 16px">Lesson 1 of 16</div>
+  </div>
+
+  <div ref="{{ stageRef }}" tabindex="0" onKeyDown="{{ onKey }}" role="group" aria-label="Lesson walkthrough. Press space to play or pause." style="position:relative;aspect-ratio:16/9;background:radial-gradient(120% 120% at 50% 20%,#15406b,#0c2742);overflow:hidden;outline:none">
+     <div ref="{{ cursorRef }}" aria-hidden="true" style="position:absolute;left:50%;top:42%;width:30px;height:30px;transition:left .8s cubic-bezier(.4,0,.2,1),top .8s cubic-bezier(.4,0,.2,1);z-index:6;pointer-events:none;filter:drop-shadow(0 3px 5px rgba(0,0,0,.4))">
+       <svg viewBox="0 0 24 24" width="30" height="30" fill="#fff" stroke="#12395f" stroke-width="1.5"><path d="M5 3l14 8-6 1.4L9.6 18 5 3z"></path></svg>
+     </div>
+     <div ref="{{ ripRef }}" aria-hidden="true" style="position:absolute;width:32px;height:32px;border-radius:50%;border:3px solid #7fd6cf;z-index:5;pointer-events:none;opacity:0"></div>
+
+     <div ref="{{ posterRef }}" style="position:absolute;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:radial-gradient(120% 120% at 50% 18%,#15406b,#0b2540);text-align:center;padding:30px">
+        <div ref="{{ pNumRef }}" style="font:600 14px Inter,sans-serif;letter-spacing:3px;text-transform:uppercase;color:#7fd6cf">Lesson 1</div>
+        <div ref="{{ pTitleRef }}" style="font:600 38px/1.2 Lexend,sans-serif;color:#fff;max-width:640px">Turn on and sign in</div>
+        <button type="button" onClick="{{ onPlay }}" aria-label="Play lesson" style="margin-top:4px;width:92px;height:92px;border:none;border-radius:50%;background:#1b8f8a;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 16px 40px rgba(27,143,138,.5);animation:azpulse 2.6s ease-in-out infinite">
+          <svg viewBox="0 0 24 24" width="40" height="40" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg>
+        </button>
+        <div style="display:flex;align-items:center;gap:12px;color:#cfe0ee;font:500 15px Inter,sans-serif">
+          <span style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:6px 14px">Watch, then try it yourself</span>
+          <span ref="{{ durRef }}">0:14</span>
+        </div>
+     </div>
+
+     <div ref="{{ endedRef }}" style="position:absolute;inset:0;z-index:10;display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px;background:radial-gradient(120% 120% at 50% 30%,rgba(21,64,107,.92),rgba(11,37,64,.97));text-align:center;padding:30px">
+        <div style="width:88px;height:88px;border-radius:50%;background:#1b8f8a;display:flex;align-items:center;justify-content:center;font-size:46px;color:#fff;box-shadow:0 14px 36px rgba(27,143,138,.5)">&#10003;</div>
+        <div style="font:600 28px/1.25 Lexend,sans-serif;color:#fff;max-width:520px">Well done — now it is your turn to try it.</div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+          <button type="button" onClick="{{ onReplay }}" style="display:flex;align-items:center;gap:8px;background:#fff;color:#12395f;border:none;border-radius:999px;padding:13px 24px;font:600 16px Inter,sans-serif;cursor:pointer;min-height:48px">&#8635;&nbsp;Watch again</button>
+          <button type="button" onClick="{{ onNext }}" style="display:flex;align-items:center;gap:8px;background:#1b8f8a;color:#fff;border:none;border-radius:999px;padding:13px 24px;font:600 16px Inter,sans-serif;cursor:pointer;min-height:48px">Next lesson&nbsp;&#8594;</button>
+        </div>
+     </div>
+
+     <div ref="{{ capWrapRef }}" style="position:absolute;left:0;right:0;bottom:0;z-index:8;display:flex;justify-content:center;padding:0 18px 18px;pointer-events:none">
+       <p ref="{{ capRef }}" aria-live="polite" style="margin:0;max-width:82%;background:rgba(8,24,43,.82);color:#fff;font:500 22px/1.4 Inter,sans-serif;padding:12px 22px;border-radius:14px;text-align:center"></p>
+     </div>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:14px;padding:16px 22px;background:#fff;border-bottom:1px solid #eef0f3">
+    <button type="button" onClick="{{ onTogglePlay }}" aria-label="Play or pause" style="flex:0 0 auto;width:52px;height:52px;border:none;border-radius:50%;background:#12395f;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer">
+      <span ref="{{ iconRef }}"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg></span>
+    </button>
+    <div ref="{{ trackRef }}" class="az-track" onClick="{{ onScrub }}" role="slider" aria-label="Lesson progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0" style="flex:1;height:10px;background:#e7ebf0;border-radius:999px;cursor:pointer;position:relative;overflow:hidden">
+      <div ref="{{ progRef }}" style="position:absolute;left:0;top:0;bottom:0;width:0%;background:linear-gradient(90deg,#1b8f8a,#2fb0a6);border-radius:999px"></div>
+    </div>
+    <div style="flex:0 0 auto;font:600 14px Inter,sans-serif;color:#52606e;min-width:78px;text-align:center"><span ref="{{ timeRef }}">0:00</span> / <span ref="{{ totalRef }}">0:14</span></div>
+    <div style="display:flex;gap:8px">
+      <button type="button" onClick="{{ onReplay }}" aria-label="Replay from the start" title="Replay" style="width:46px;height:46px;border:1px solid #e2e7ee;border-radius:12px;background:#fff;color:#12395f;cursor:pointer;font-size:18px">&#8635;</button>
+      <button type="button" onClick="{{ onVoice }}" aria-pressed="false" aria-label="Narration on or off" title="Narration" ref="{{ voiceRef }}" style="width:46px;height:46px;border:1px solid #e2e7ee;border-radius:12px;background:#fff;color:#12395f;cursor:pointer;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5z"></path><path d="M19 9a4 4 0 0 1 0 6"></path></svg></button>
+      <button type="button" onClick="{{ onCC }}" aria-pressed="true" aria-label="Captions on or off" title="Captions" ref="{{ ccRef }}" style="width:46px;height:46px;border:1px solid #1b8f8a;border-radius:12px;background:#e6f4f1;color:#15706b;cursor:pointer;font:700 13px Inter,sans-serif">CC</button>
+      <button type="button" onClick="{{ onFull }}" aria-label="Full screen" title="Full screen" style="width:46px;height:46px;border:1px solid #e2e7ee;border-radius:12px;background:#fff;color:#12395f;cursor:pointer;font-size:16px">&#9974;</button>
+    </div>
+  </div>
+
+  <div ref="{{ railRef }}" aria-label="Choose a lesson" style="display:flex;gap:10px;overflow-x:auto;padding:16px 22px 20px;background:#fbfbfa">
+    <sc-for list="{{ lessons }}" as="lesson" hint-placeholder-count="6">
+      <button type="button" data-idx="{{ lesson.idx }}" onClick="{{ onSelect }}" style="flex:0 0 auto;display:flex;flex-direction:column;gap:3px;text-align:left;min-width:152px;padding:11px 14px;border:1.5px solid #e6e9ee;border-radius:13px;background:#fff;cursor:pointer;min-height:48px">
+        <span style="font:600 12px Inter,sans-serif;color:#1b8f8a;letter-spacing:.5px">LESSON {{ lesson.n }}</span>
+        <span style="font:600 14px/1.25 Inter,sans-serif;color:#2a3b4d">{{ lesson.title }}</span>
+      </button>
+    </sc-for>
+  </div>
+ </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1000,&quot;height&quot;:780},&quot;startLesson&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:1,&quot;min&quot;:1,&quot;max&quot;:16,&quot;unit&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Lesson&quot;}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.tTimers = [];
+    this.raf = 0;
+    this.idx = 0;
+    this.clock = 0;
+    this.curFrame = -1;
+    this.started = false;
+    this.playing = false;
+    this.ended = false;
+    this.voiceOn = false;
+    this.ccOn = true;
+    this.loop = this.loop.bind(this);
+
+    /* ---------- inline-styled scene builders ---------- */
+    const cur = '<span style="display:inline-block;width:3px;height:1.05em;background:#1f2d3a;margin-left:2px;vertical-align:-3px;animation:azblink 1.05s steps(1) infinite"></span>';
+    const tb = (bg, name) => `<div class="az-tb" style="display:flex;align-items:center;justify-content:space-between;background:${bg};color:#fff;font:600 16px/1 Inter,sans-serif;padding:11px 16px">${name}<span class="x" style="letter-spacing:4px;opacity:.92;font-size:15px">&#8211;&nbsp;&#9633;&nbsp;&#10005;</span></div>`;
+    const fbtn = (l, k, hot, extra) => `<div data-k="${k}" style="width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font:700 18px Georgia,serif;background:${hot ? '#cfe6ff' : '#fff'};border:1.5px solid ${hot ? '#3f8efc' : '#dce3ec'};color:#2a3b4d;${extra || ''}">${l}</div>`;
+    const fbtns = (hot) => { hot = hot || ''; return fbtn('B', 'B', hot.includes('B')) + fbtn('I', 'I', hot.includes('I'), 'font-style:italic') + fbtn('U', 'U', hot.includes('U'), 'text-decoration:underline') + fbtn('A', 'C', hot.includes('C'), 'color:#c0392b'); };
+    const word = (ribbon, page) => `<div style="width:74%;max-width:560px;background:#fff;border-radius:14px;box-shadow:0 30px 70px rgba(8,30,55,.45);overflow:hidden">${tb('#185abd', 'Document — Word')}<div style="display:flex;gap:10px;padding:10px 16px;background:#f2f5f9;border-bottom:1px solid #e2e8f1">${ribbon}</div><div style="background:#e9edf3;padding:22px;display:flex;justify-content:center"><div style="width:88%;min-height:150px;background:#fff;box-shadow:0 3px 14px rgba(0,0,0,.08);padding:26px;font:400 23px/1.5 Georgia,serif;color:#1f2d3a">${page}</div></div></div>`;
+    const excel = (cells, sel, cls) => {
+      cls = cls || {}; const cols = ['A', 'B', 'C'];
+      let head = '<div style="background:#eef2f7;border:1px solid #dbe3ec"></div>' + cols.map((c) => `<div style="background:#eef2f7;border:1px solid #dbe3ec;display:flex;align-items:center;justify-content:center;font:600 15px Inter,sans-serif;color:#5b6b7d;padding:8px 0">${c}</div>`).join('');
+      let body = '';
+      for (let r = 1; r <= 5; r++) {
+        body += `<div style="background:#eef2f7;border:1px solid #dbe3ec;display:flex;align-items:center;justify-content:center;font:600 15px Inter,sans-serif;color:#5b6b7d">${r}</div>` + cols.map((c) => {
+          const k = c + r, v = cells[k] || '', sl = sel === k, ex = cls[k] || '';
+          const bold = r === 1 ? 'font-weight:700;' : '';
+          const bg = sl ? '#e6f4f1' : ex === 'tot' ? '#fff7e6' : ex === 'sum' ? '#eaf6ff' : '#fff';
+          const bd = sl ? '2px solid #1b8f8a' : '1px solid #e3e9f1';
+          return `<div data-cell="${k}" style="border:${bd};background:${bg};${bold}display:flex;align-items:center;padding:8px 10px;font:400 16px Inter,sans-serif;color:#23303d;min-height:34px">${v}</div>`;
+        }).join('');
+      }
+      return `<div style="width:74%;max-width:560px;background:#fff;border-radius:14px;box-shadow:0 30px 70px rgba(8,30,55,.45);overflow:hidden">${tb('#107c41', 'Book1 — Excel')}<div style="display:flex;align-items:center;gap:12px;padding:9px 16px;background:#f4f7fa;border-bottom:1px solid #e2e8f1"><div style="min-width:54px;text-align:center;font:600 15px Inter,sans-serif;color:#5b6b7d;background:#fff;border:1px solid #dbe3ec;border-radius:6px;padding:6px 8px">${sel || 'A1'}</div><div data-fx style="flex:1;font:400 16px Inter,sans-serif;color:#23303d">${cells[sel] || ''}</div></div><div style="display:grid;grid-template-columns:46px repeat(3,1fr);padding:14px;background:#fbfcfe">${head}${body}</div></div>`;
+    };
+    const deskIc = (bg, glyph, lab, key, sel) => `<div data-ic="${key}" style="width:96px;text-align:center;${sel === key ? 'background:rgba(255,255,255,.18);border-radius:10px;' : ''}padding:8px 4px"><div style="width:60px;height:60px;margin:0 auto;border-radius:12px;background:${bg};display:flex;align-items:center;justify-content:center;font:700 26px Inter,sans-serif;color:#fff;box-shadow:0 6px 16px rgba(0,0,0,.25)">${glyph}</div><div style="margin-top:7px;font:500 14px Inter,sans-serif;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.5)">${lab}</div></div>`;
+    const desk = (sel) => `<div style="width:88%;height:80%;border-radius:16px;background:linear-gradient(150deg,#1d5e7e,#2f8f7e);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),0 30px 70px rgba(8,30,55,.45);display:flex;gap:26px;align-items:flex-start;padding:30px">${deskIc('#5b6b7b', '&#128465;', 'Recycle', 'bin', sel)}${deskIc('#185abd', 'W', 'Word', 'w', sel)}${deskIc('#107c41', 'X', 'Excel', 'x', sel)}${deskIc('#e8a13a', '&#128193;', 'Documents', 'docs', sel)}</div>`;
+    const key = (t, flex, hot) => `<div style="flex:${flex || '0 0 auto'};min-width:42px;height:46px;display:flex;align-items:center;justify-content:center;background:${hot && hot.includes(t) ? '#1b8f8a' : '#fff'};color:${hot && hot.includes(t) ? '#fff' : '#28323d'};border-radius:9px;border:1.5px solid #dce3ec;font:600 15px Inter,sans-serif;box-shadow:0 2px 0 #d3dae3">${t}</div>`;
+    const krow = (inner) => `<div style="display:flex;gap:7px;justify-content:center;margin-bottom:7px">${inner}</div>`;
+    const keys = (hot) => `<div style="background:#eef2f6;border-radius:16px;padding:18px;box-shadow:0 30px 70px rgba(8,30,55,.45)">${krow(['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'].map((x) => key(x, 0, hot)).join('') + key('&#9003; Back', '1 1 0', hot))}${krow(['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'].map((x) => key(x, 0, hot)).join('') + key('&#9166; Enter', '1 1 0', hot))}${krow(key('&#8679; Shift', '1 1 0', hot) + ['Z', 'X', 'C', 'V', 'B', 'N', 'M'].map((x) => key(x, 0, hot)).join(''))}${krow(key('space', '1 1 0', hot))}</div>`;
+    const combo = (a, b, label) => `<div style="background:#fff;border-radius:18px;box-shadow:0 30px 70px rgba(8,30,55,.45);padding:34px 44px;text-align:center"><div style="display:flex;gap:16px;align-items:center;justify-content:center"><div style="min-width:96px;height:64px;display:flex;align-items:center;justify-content:center;background:#12395f;color:#fff;border-radius:12px;font:700 20px Inter,sans-serif">${a}</div><div style="font:300 40px Inter,sans-serif;color:#1b8f8a">+</div><div style="min-width:64px;height:64px;display:flex;align-items:center;justify-content:center;background:#12395f;color:#fff;border-radius:12px;font:700 26px Inter,sans-serif">${b}</div></div><div style="margin-top:18px;font:600 24px Lexend,Inter,sans-serif;color:#12395f">${label}</div></div>`;
+    const con = (icon, title, pill) => `<div style="background:#fff;border-radius:18px;box-shadow:0 30px 70px rgba(8,30,55,.45);padding:36px 44px;max-width:460px;text-align:center"><div style="font-size:56px;line-height:1">${icon}</div><div style="margin-top:14px;font:600 25px/1.3 Lexend,Inter,sans-serif;color:#12395f">${title}</div>${pill ? `<div style="display:inline-block;margin-top:14px;background:#e6f4f1;color:#15706b;border-radius:999px;padding:8px 18px;font:600 15px Inter,sans-serif">${pill}</div>` : ''}</div>`;
+    const folder = () => `<div style="width:70%;max-width:520px;background:#fff;border-radius:14px;box-shadow:0 30px 70px rgba(8,30,55,.45);overflow:hidden">${tb('#5b6b7b', '&#128193; Documents')}<div style="background:#fbfcfd;padding:30px;min-height:170px"><div data-ic="file" style="width:130px;text-align:center"><div style="font-size:58px;color:#185abd">&#128462;</div><div style="margin-top:6px;font:500 15px Inter,sans-serif;color:#2a3b4d">my first note</div></div></div></div>`;
+    const save = (name) => `<div style="width:72%;max-width:540px;background:#fff;border-radius:14px;box-shadow:0 30px 70px rgba(8,30,55,.45);overflow:hidden">${tb('#185abd', 'Save As')}<div style="background:#eceef1;padding:30px;display:flex;justify-content:center"><div style="background:#fff;border-radius:12px;box-shadow:0 14px 34px rgba(0,0,0,.18);padding:24px;width:90%"><div style="margin-bottom:16px;color:#52606e;font:500 16px Inter,sans-serif">&#128193; Documents</div><div style="display:flex;gap:12px;align-items:center"><span style="color:#3c4854;font:500 16px Inter,sans-serif">File name:</span><div data-fx style="flex:1;border:2px solid #185abd;border-radius:7px;padding:10px 13px;min-height:24px;font:400 17px Inter,sans-serif;color:#1f2d3a">${name || ''}</div></div><div style="text-align:right;margin-top:18px"><span data-k="save" style="display:inline-block;background:#185abd;color:#fff;padding:10px 26px;border-radius:8px;font:600 16px Inter,sans-serif">Save</span></div></div></div></div>`;
+    const signin = () => `<div style="width:78%;max-width:520px;border-radius:18px;background:linear-gradient(160deg,#123a63,#2f8f7e);box-shadow:0 30px 70px rgba(8,30,55,.45);padding:44px;text-align:center;color:#fff"><div style="width:96px;height:96px;border-radius:50%;background:rgba(255,255,255,.85);margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:48px">&#128100;</div><div style="margin-top:16px;font:600 24px Lexend,Inter,sans-serif">David</div><div data-fx style="margin:18px auto 0;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.5);border-radius:8px;padding:12px 0;max-width:240px;letter-spacing:6px;font-size:22px;min-height:24px"></div></div>`;
+    const titleCard = (n, t) => `<div style="text-align:center;color:#fff"><div style="font:600 16px Inter,sans-serif;letter-spacing:3px;text-transform:uppercase;color:#7fd6cf">Lesson ${n}</div><div style="margin-top:12px;font:600 40px/1.2 Lexend,Inter,sans-serif;max-width:640px">${t}</div><div style="display:inline-block;margin-top:18px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:9px 20px;font:500 15px Inter,sans-serif">Watch, then try it yourself</div></div>`;
+    const doneCard = (msg) => `<div style="text-align:center;color:#fff"><div style="width:96px;height:96px;border-radius:50%;background:#1b8f8a;margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:50px;box-shadow:0 12px 30px rgba(27,143,138,.5)">&#10003;</div><div style="margin-top:18px;font:600 32px/1.25 Lexend,Inter,sans-serif;max-width:560px">${msg}</div></div>`;
+
+    this.lessons = [
+      { idx: 0, n: '01', title: 'Turn on & sign in', full: 'Turn on and sign in' },
+      { idx: 1, n: '02', title: 'The mouse & clicking', full: 'The mouse: moving & clicking' },
+      { idx: 2, n: '03', title: 'Double-click', full: 'Clicking & double-clicking' },
+      { idx: 3, n: '04', title: 'The keyboard', full: 'The keyboard' },
+      { idx: 4, n: '05', title: 'Open & close', full: 'Open & close a program' },
+      { idx: 5, n: '06', title: 'Save & find', full: 'Save a file & find it' },
+      { idx: 6, n: '07', title: 'Files & folders', full: 'Files & folders' },
+      { idx: 7, n: '08', title: 'Practice: save & find', full: 'Practice: save & find' },
+      { idx: 8, n: '09', title: 'Word: a sentence', full: 'Word: type a sentence' },
+      { idx: 9, n: '10', title: 'Word: copy & paste', full: 'Word: copy, paste & undo' },
+      { idx: 10, n: '11', title: 'Word: format text', full: 'Word: bold, italic & colour' },
+      { idx: 11, n: '12', title: 'Word: titles', full: 'Word: titles, size & alignment' },
+      { idx: 12, n: '13', title: 'Word: lists & PDF', full: 'Word: lists, spell-check & PDF' },
+      { idx: 13, n: '14', title: 'Excel: cells', full: 'Excel: cells, rows & columns' },
+      { idx: 14, n: '15', title: 'Excel: tables', full: 'Excel: data & a tidy table' },
+      { idx: 15, n: '16', title: 'Excel: formulas', full: 'Excel: formulas & a total' },
+    ];
+
+    this.L = [
+      [ { html: titleCard('1', 'Turn on and sign in'), cap: "Let's turn the computer on together.", dur: 2000 },
+        { html: con('&#9211;', 'Find the power button', 'A round circle with a line'), cap: 'Find the power button…', dur: 2300 },
+        { html: con('&#9211;', 'Press it once', 'Now wait a little moment'), cap: 'Press it once, and wait while it wakes up.', dur: 2300 },
+        { html: signin(), cap: 'When it asks, type the password.', type: { sel: '[data-fx]', txt: '••••••' }, dur: 2800 },
+        { html: desk(), cap: 'And there it is — the desktop, your starting place.', dur: 2200 },
+        { html: doneCard('You turned the computer on!'), cap: 'Well done.', dur: 2000 } ],
+      [ { html: titleCard('2', 'The mouse: moving & clicking'), cap: 'Today we meet the mouse.', dur: 2000 },
+        { html: desk(), cap: 'Rest your hand on it and move slowly — the arrow moves too.', dur: 2400 },
+        { html: desk(), cap: 'That arrow is your finger, reaching into the screen.', focus: '[data-ic="bin"]', dur: 2200 },
+        { html: desk(), cap: 'To choose the Word icon, click it once…', focus: '[data-ic="w"]', dur: 2400 },
+        { html: desk('w'), cap: 'Chosen! One click chooses something.', dur: 2000 },
+        { html: doneCard('You moved the mouse and clicked!'), cap: "That's a real skill.", dur: 1900 } ],
+      [ { html: titleCard('3', 'Clicking & double-clicking'), cap: 'A double-click opens things.', dur: 2000 },
+        { html: desk(), cap: 'Point the arrow at a folder…', focus: '[data-ic="docs"]', dur: 2100 },
+        { html: desk(), cap: 'Now two quick taps — and keep the mouse still.', focus: '[data-ic="docs"]', dur: 2100 },
+        { html: folder(), cap: 'It opens! That is a double-click.', dur: 2200 },
+        { html: doneCard('You did a double-click!'), cap: 'If it does not open, just try again, nice and still.', dur: 2200 } ],
+      [ { html: titleCard('4', 'The keyboard'), cap: 'Today we meet the keyboard.', dur: 2000 },
+        { html: keys(['space', '&#9166; Enter', '&#9003; Back']), cap: 'The keys we use most: space, Enter and Backspace.', dur: 2800 },
+        { html: word(fbtns(), '<span data-fx></span>' + cur), cap: 'Click where the line blinks, and type slowly.', type: { sel: '[data-fx]', txt: 'c a t' }, dur: 2800 },
+        { html: word(fbtns(), 'cat' + cur), cap: 'Space makes a gap, Backspace fixes mistakes.', dur: 2200 },
+        { html: doneCard('You typed your first word!'), cap: 'Mistakes are completely fine.', dur: 1900 } ],
+      [ { html: titleCard('5', 'Open & close a program'), cap: 'Open a program, then close it.', dur: 2000 },
+        { html: desk(), cap: 'Double-click an icon to open it.', focus: '[data-ic="w"]', dur: 2100 },
+        { html: word(fbtns(), cur), cap: 'It opens in its own window, like a book.', dur: 2100 },
+        { html: word(fbtns(), cur), cap: 'When finished, find the small X in the corner…', focus: '.az-tb .x', dur: 2300 },
+        { html: doneCard('Opened it, and closed it!'), cap: 'Click the X once, and it closes.', dur: 2000 } ],
+      [ { html: titleCard('6', 'Save a file & find it'), cap: 'Saving is like putting your letter in a drawer.', dur: 2100 },
+        { html: word(fbtns(), 'My note' + cur), cap: 'Click File, then Save.', dur: 2000 },
+        { html: save(''), cap: 'Give it a simple name.', type: { sel: '[data-fx]', txt: 'my first note' }, dur: 2600 },
+        { html: save('my first note'), cap: 'We always save to Documents.', focus: '[data-k="save"]', dur: 2000 },
+        { html: folder(), cap: 'Open Documents to find it again.', focus: '[data-ic="file"]', dur: 2200 },
+        { html: doneCard('Your work is safe!'), cap: 'The same drawer, every time.', dur: 1900 } ],
+      [ { html: titleCard('7', 'Files & folders'), cap: 'A file is a letter; a folder is the box that holds it.', dur: 2300 },
+        { html: con('&#128193;', 'A folder holds your files', 'To keep them tidy'), cap: 'A folder keeps your files tidy.', dur: 2300 },
+        { html: folder(), cap: 'Open Documents…', focus: '[data-ic="file"]', dur: 2200 },
+        { html: doneCard('There is your file!'), cap: 'It waited for you.', dur: 1900 } ],
+      [ { html: titleCard('8', 'Practice: save & find'), cap: 'Today we practise on our own.', dur: 2000 },
+        { html: word(fbtns(), '<span data-fx></span>' + cur), cap: 'Open Word and type a note.', type: { sel: '[data-fx]', txt: 'Hello' }, dur: 2400 },
+        { html: save('my note'), cap: 'Save it, with a name, in Documents.', focus: '[data-k="save"]', dur: 2200 },
+        { html: folder(), cap: 'Then find it again in Documents.', focus: '[data-ic="file"]', dur: 2200 },
+        { html: doneCard('You did it by yourself!'), cap: 'That is real independence.', dur: 2000 } ],
+      [ { html: titleCard('9', 'Word: type a sentence'), cap: 'Now we write properly, in Word.', dur: 2000 },
+        { html: desk(), cap: 'Double-click the blue W to open Word.', focus: '[data-ic="w"]', dur: 2100 },
+        { html: word(fbtns(), '<span data-fx></span>' + cur), cap: 'Type a sentence — a capital letter to start.', type: { sel: '[data-fx]', txt: 'I am learning to use a computer.' }, dur: 3800 },
+        { html: word(fbtns(), 'I am learning to use a computer.' + cur), cap: 'End with a full stop.', dur: 2200 },
+        { html: doneCard('A real sentence on the page!'), cap: 'Wonderful.', dur: 1900 } ],
+      [ { html: titleCard('10', 'Word: copy, paste & undo'), cap: 'Three shortcuts — the heart of editing.', dur: 2100 },
+        { html: word(fbtns(), '<span style="background:#cfe2ff">Hello</span>' + cur), cap: 'First, select a word — it turns blue.', dur: 2200 },
+        { html: combo('Ctrl', 'C', 'Copy'), cap: 'Copy it with Ctrl + C.', dur: 2000 },
+        { html: combo('Ctrl', 'V', 'Paste'), cap: 'Paste it with Ctrl + V.', dur: 2000 },
+        { html: combo('Ctrl', 'Z', 'Undo'), cap: 'Undo any mistake with Ctrl + Z — the magic go-back.', dur: 2300 },
+        { html: doneCard('Copy, paste, undo — done!'), cap: 'Nothing here can break.', dur: 1900 } ],
+      [ { html: titleCard('11', 'Word: bold, italic & colour'), cap: 'Make a word stand out.', dur: 2000 },
+        { html: word(fbtns(), '<span style="background:#cfe2ff">David</span>' + cur), cap: 'Choose a word — it turns blue.', dur: 2000 },
+        { html: word(fbtns('B'), '<b>David</b>' + cur), cap: 'Click B for bold.', focus: '[data-k="B"]', dur: 2100 },
+        { html: word(fbtns('I'), '<b><i>David</i></b>' + cur), cap: 'Click I for italic — it leans over.', focus: '[data-k="I"]', dur: 2100 },
+        { html: word(fbtns('C'), '<b><i style="color:#c0392b">David</i></b>' + cur), cap: 'The A button adds colour.', focus: '[data-k="C"]', dur: 2200 },
+        { html: doneCard('Choose first, then change!'), cap: 'You made it stand out.', dur: 1900 } ],
+      [ { html: titleCard('12', 'Word: titles, size & alignment'), cap: 'Make a proper title.', dur: 2000 },
+        { html: word(fbtns(), '<span style="font-size:32px;background:#cfe2ff">My List</span>'), cap: 'Type a title and pick a bigger size.', dur: 2200 },
+        { html: word(fbtns('B'), '<span style="font-size:32px;font-weight:700">My List</span>'), cap: 'Make it bold.', focus: '[data-k="B"]', dur: 2000 },
+        { html: word(fbtns(), '<div style="text-align:center;font-size:32px;font-weight:700">My List</div>'), cap: 'Centre it with the centre button.', dur: 2200 },
+        { html: doneCard('That looks professional!'), cap: 'A clear, neat heading.', dur: 1900 } ],
+      [ { html: titleCard('13', 'Word: lists, spell-check & PDF'), cap: 'Tidy lists and safe sharing.', dur: 2100 },
+        { html: word(fbtns(), '<div>&#8226; milk</div>' + cur), cap: 'The bullets button makes a tidy list.', dur: 2200 },
+        { html: word(fbtns(), '<div>&#8226; milk</div><div>&#8226; bread</div><div>&#8226; eggs</div>'), cap: 'One item on each line.', dur: 2200 },
+        { html: word(fbtns(), '<div>I <span style="text-decoration:underline wavy #d33">lern</span> Word</div>'), cap: 'A red wavy line means: check the spelling.', dur: 2400 },
+        { html: con('&#128196;', 'Save As → PDF', 'Looks the same on every device'), cap: 'Save as a PDF to share it safely.', dur: 2200 } ],
+      [ { html: titleCard('14', 'Excel: cells, rows & columns'), cap: 'Excel is squared paper.', dur: 2000 },
+        { html: con('&#129003;', 'Each box is a cell', 'Letters across, numbers down'), cap: 'Each little box is a cell.', dur: 2300 },
+        { html: excel({}, 'A1'), cap: 'Columns are letters; rows are numbers.', dur: 2200 },
+        { html: excel({}, 'A1'), cap: 'So the top-left box is A1.', focus: '[data-cell="A1"]', dur: 2200 },
+        { html: doneCard('You found your way around Excel!'), cap: 'A1 = column A, row 1.', dur: 1900 } ],
+      [ { html: titleCard('15', 'Excel: data & a tidy table'), cap: 'Make a tidy table.', dur: 2000 },
+        { html: excel({ A1: 'Item', B1: 'Cost' }, 'A1'), cap: 'Type a heading, then press Enter.', dur: 2200 },
+        { html: excel({ A1: 'Item', B1: 'Cost', A2: 'milk', A3: 'bread', A4: 'eggs' }, 'A2'), cap: 'Type your list down the column.', dur: 2400 },
+        { html: excel({ A1: 'Item', B1: 'Cost', A2: 'milk', B2: '£1', A3: 'bread', B3: '£2', A4: 'eggs', B4: '£3' }, 'B2'), cap: 'Show prices as money with the £ button.', dur: 2400 },
+        { html: doneCard('A clear, tidy table!'), cap: 'Bold header, data underneath.', dur: 1900 } ],
+      [ { html: titleCard('16', 'Excel: formulas & a total'), cap: 'The magic of Excel — it does the maths for you.', dur: 2200 },
+        { html: excel({ A1: 'Item', B1: 'Cost', A2: 'milk', B2: '1', A3: 'bread', B3: '2', A4: 'eggs', B4: '3', A5: 'Total' }, 'B5'), cap: 'Click the Total cell, B5.', focus: '[data-cell="B5"]', dur: 2200 },
+        { html: excel({ A1: 'Item', B1: 'Cost', A2: 'milk', B2: '1', A3: 'bread', B3: '2', A4: 'eggs', B4: '3', A5: 'Total' }, 'B5'), cap: 'Every formula starts with =. Type =SUM(B2:B4).', type: { sel: '[data-fx]', txt: '=SUM(B2:B4)' }, dur: 3200 },
+        { html: excel({ A1: 'Item', B1: 'Cost', A2: 'milk', B2: '1', A3: 'bread', B3: '2', A4: 'eggs', B4: '3', A5: 'Total', B5: '6' }, 'B5', { B2: 'sum', B3: 'sum', B4: 'sum', B5: 'tot' }), cap: 'Press Enter — the total is 6!', dur: 2600 },
+        { html: con('&#931;', 'AutoSum', 'One click totals a whole column'), cap: 'The AutoSum (Σ) button is the quick way.', dur: 2200 },
+        { html: doneCard('Now you write formulas!'), cap: 'You started at the power button. Brilliant.', dur: 2600 } ],
+    ];
+  }
+
+  componentDidMount() {
+    this.rm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const start = Math.min(16, Math.max(1, this.props.startLesson || 1)) - 1;
+    this.setupLesson(start);
+  }
+  componentWillUnmount() { this.stopAll(); }
+
+  fmt(ms) { const s = Math.round(ms / 1000); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); }
+  stopAll() { cancelAnimationFrame(this.raf); this.cancelVoice(); this.clearType(); this.playing = false; }
+  clearType() { this.tTimers.forEach(clearTimeout); this.tTimers = []; }
+  cancelVoice() { if (window.speechSynthesis) window.speechSynthesis.cancel(); }
+
+  setupLesson(i) {
+    this.stopAll();
+    this.idx = i; this.frames = this.L[i];
+    this.total = this.frames.reduce((a, f) => a + (f.dur || 2400), 0);
+    this.clock = 0; this.curFrame = -1; this.started = false; this.playing = false; this.ended = false;
+    const les = this.lessons[i];
+    if (this.numEl) this.numEl.textContent = 'Lesson ' + (i + 1) + ' of 16';
+    if (this.pNumEl) this.pNumEl.textContent = 'Lesson ' + (i + 1);
+    if (this.pTitleEl) this.pTitleEl.textContent = les.full;
+    if (this.durEl) this.durEl.textContent = this.fmt(this.total);
+    if (this.totalEl) this.totalEl.textContent = this.fmt(this.total);
+    if (this.timeEl) this.timeEl.textContent = '0:00';
+    if (this.progEl) this.progEl.style.width = '0%';
+    if (this.capEl) this.capEl.textContent = '';
+    if (this.stage) [...this.stage.querySelectorAll('.az-scene')].forEach((s) => s.remove());
+    if (this.cursorEl) { this.cursorEl.style.left = '50%'; this.cursorEl.style.top = '42%'; }
+    this.showPoster(true); this.showEnded(false); this.paintRail(); this.paintPlayIcon();
+  }
+
+  showPoster(b) { if (this.posterEl) this.posterEl.style.display = b ? 'flex' : 'none'; }
+  showEnded(b) { if (this.endedEl) this.endedEl.style.display = b ? 'flex' : 'none'; }
+  paintPlayIcon() {
+    if (!this.iconEl) return;
+    this.iconEl.innerHTML = this.playing
+      ? '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z"></path></svg>'
+      : '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg>';
+  }
+  paintRail() {
+    if (!this.rail) return;
+    this.rail.querySelectorAll('[data-idx]').forEach((btn) => {
+      const on = +btn.dataset.idx === this.idx;
+      btn.style.background = on ? '#12395f' : '#fff';
+      btn.style.borderColor = on ? '#12395f' : '#e6e9ee';
+      const sp = btn.querySelectorAll('span');
+      if (sp[0]) sp[0].style.color = on ? '#7fd6cf' : '#1b8f8a';
+      if (sp[1]) sp[1].style.color = on ? '#fff' : '#2a3b4d';
+    });
+  }
+
+  play() {
+    if (this.ended) { this.replay(); return; }
+    this.started = true; this.showPoster(false); this.showEnded(false);
+    this.playing = true; this.paintPlayIcon();
+    if (this.curFrame < 0) this.syncFrame();
+    this.lastTs = performance.now();
+    cancelAnimationFrame(this.raf); this.raf = requestAnimationFrame(this.loop);
+  }
+  togglePlay() {
+    if (!this.started || this.ended) { this.ended ? this.replay() : this.play(); return; }
+    this.playing ? this.pause() : this.resume();
+  }
+  pause() { this.playing = false; cancelAnimationFrame(this.raf); this.cancelVoice(); this.paintPlayIcon(); }
+  resume() { this.playing = true; this.paintPlayIcon(); this.lastTs = performance.now(); cancelAnimationFrame(this.raf); this.raf = requestAnimationFrame(this.loop); }
+  replay() {
+    this.clock = 0; this.curFrame = -1; this.ended = false; this.started = true;
+    this.showEnded(false); this.showPoster(false); this.playing = true; this.paintPlayIcon();
+    this.syncFrame(); this.lastTs = performance.now();
+    cancelAnimationFrame(this.raf); this.raf = requestAnimationFrame(this.loop);
+  }
+  next() { this.setupLesson((this.idx + 1) % 16); this.play(); }
+
+  loop() {
+    if (!this.playing) return;
+    const now = performance.now();
+    const dt = Math.min(now - this.lastTs, 200); this.lastTs = now;
+    this.clock += dt;
+    if (this.clock >= this.total) { this.clock = this.total; this.paintProgress(); this.syncFrame(); this.end(); return; }
+    this.paintProgress(); this.syncFrame();
+    this.raf = requestAnimationFrame(this.loop);
+  }
+  end() { this.playing = false; cancelAnimationFrame(this.raf); this.cancelVoice(); this.ended = true; this.paintPlayIcon(); this.showEnded(true); }
+
+  syncFrame() {
+    let acc = 0, idx = 0;
+    for (let i = 0; i < this.frames.length; i++) { acc += this.frames[i].dur || 2400; idx = i; if (this.clock < acc) break; }
+    if (idx !== this.curFrame) { this.curFrame = idx; this.showFrame(this.frames[idx]); }
+  }
+  paintProgress() {
+    const pct = this.total ? this.clock / this.total * 100 : 0;
+    if (this.progEl) this.progEl.style.width = pct + '%';
+    if (this.timeEl) this.timeEl.textContent = this.fmt(this.clock);
+    if (this.trackEl) this.trackEl.setAttribute('aria-valuenow', Math.round(pct));
+  }
+
+  showFrame(f) {
+    if (!this.stage) return;
+    const scene = document.createElement('div');
+    scene.className = 'az-scene';
+    scene.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .45s ease;padding:24px';
+    scene.innerHTML = f.html;
+    this.stage.appendChild(scene);
+    requestAnimationFrame(() => { scene.style.opacity = '1'; });
+    const olds = [...this.stage.querySelectorAll('.az-scene')].slice(0, -1);
+    setTimeout(() => olds.forEach((o) => o.remove()), 480);
+    if (this.capEl) this.capEl.textContent = f.cap || '';
+    this.speak(f.cap);
+    this.clearType();
+    if (f.focus) setTimeout(() => this.moveCursor(f.focus, scene), this.rm ? 0 : 260);
+    if (f.type) setTimeout(() => this.typeInto(f.type.sel, f.type.txt, scene), this.rm ? 0 : 260);
+  }
+  moveCursor(sel, scene) {
+    const el = scene.querySelector(sel); if (!el || !this.cursorEl || !this.stage) return;
+    const s = this.stage.getBoundingClientRect(), g = el.getBoundingClientRect();
+    const x = g.left - s.left + g.width / 2, y = g.top - s.top + g.height / 2;
+    this.cursorEl.style.opacity = '1';
+    this.cursorEl.style.left = x + 'px'; this.cursorEl.style.top = y + 'px';
+    setTimeout(() => {
+      if (!this.ripEl) return;
+      this.ripEl.style.left = (x - 16) + 'px'; this.ripEl.style.top = (y - 16) + 'px';
+      this.ripEl.style.animation = 'none'; void this.ripEl.offsetWidth; this.ripEl.style.animation = 'azrip .7s ease-out';
+    }, this.rm ? 0 : 760);
+  }
+  typeInto(sel, txt, scene) {
+    const el = scene.querySelector(sel); if (!el) return;
+    if (this.rm) { el.textContent = txt; return; }
+    let i = 0; el.textContent = '';
+    const step = () => { if (i <= txt.length) { el.textContent = txt.slice(0, i); i++; this.tTimers.push(setTimeout(step, 80)); } };
+    step();
+  }
+
+  speak(text) {
+    if (!this.voiceOn || !text || !window.speechSynthesis) return;
+    const synth = window.speechSynthesis; synth.cancel();
+    const u = new SpeechSynthesisUtterance(String(text).replace(/<[^>]+>/g, ''));
+    u.rate = 0.92; u.pitch = 1; u.lang = 'en-GB';
+    const v = synth.getVoices().find((x) => /en-GB/i.test(x.lang));
+    if (v) u.voice = v;
+    synth.speak(u);
+  }
+
+  scrub(e) {
+    if (!this.total || !this.trackEl) return;
+    const r = this.trackEl.getBoundingClientRect();
+    let p = (e.clientX - r.left) / r.width; p = Math.max(0, Math.min(1, p));
+    this.started = true; this.showPoster(false);
+    this.clock = p * this.total;
+    if (this.clock < this.total) { this.ended = false; this.showEnded(false); }
+    this.curFrame = -1; this.paintProgress(); this.syncFrame();
+    if (this.playing) this.lastTs = performance.now();
+  }
+  seek(d) {
+    this.started = true; this.showPoster(false);
+    this.clock = Math.max(0, Math.min(this.total, this.clock + d));
+    if (this.clock < this.total) { this.ended = false; this.showEnded(false); }
+    this.curFrame = -1; this.paintProgress(); this.syncFrame();
+    if (this.playing) this.lastTs = performance.now();
+  }
+  onKeyHandler(e) {
+    if (e.key === ' ' || e.key === 'k') { e.preventDefault(); this.togglePlay(); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); this.seek(5000); }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); this.seek(-5000); }
+    else if (e.key === 'r') { this.replay(); }
+  }
+  toggleVoice() {
+    this.voiceOn = !this.voiceOn;
+    if (this.voiceEl) {
+      this.voiceEl.setAttribute('aria-pressed', String(this.voiceOn));
+      this.voiceEl.style.background = this.voiceOn ? '#e6f4f1' : '#fff';
+      this.voiceEl.style.borderColor = this.voiceOn ? '#1b8f8a' : '#e2e7ee';
+      this.voiceEl.style.color = this.voiceOn ? '#15706b' : '#12395f';
+    }
+    if (!this.voiceOn) this.cancelVoice();
+    else if (this.playing && this.capEl) this.speak(this.capEl.textContent);
+  }
+  toggleCC() {
+    this.ccOn = !this.ccOn;
+    if (this.capWrap) this.capWrap.style.display = this.ccOn ? 'flex' : 'none';
+    if (this.ccEl) {
+      this.ccEl.setAttribute('aria-pressed', String(this.ccOn));
+      this.ccEl.style.background = this.ccOn ? '#e6f4f1' : '#fff';
+      this.ccEl.style.borderColor = this.ccOn ? '#1b8f8a' : '#e2e7ee';
+      this.ccEl.style.color = this.ccOn ? '#15706b' : '#12395f';
+    }
+  }
+  fullscreen() {
+    if (!this.frameEl) return;
+    if (document.fullscreenElement) document.exitFullscreen();
+    else if (this.frameEl.requestFullscreen) this.frameEl.requestFullscreen();
+  }
+
+  renderVals() {
+    return {
+      lessons: this.lessons,
+      frameRef: (el) => { this.frameEl = el; },
+      numRef: (el) => { this.numEl = el; },
+      stageRef: (el) => { this.stage = el; },
+      cursorRef: (el) => { this.cursorEl = el; },
+      ripRef: (el) => { this.ripEl = el; },
+      posterRef: (el) => { this.posterEl = el; },
+      pNumRef: (el) => { this.pNumEl = el; },
+      pTitleRef: (el) => { this.pTitleEl = el; },
+      durRef: (el) => { this.durEl = el; },
+      endedRef: (el) => { this.endedEl = el; },
+      capWrapRef: (el) => { this.capWrap = el; },
+      capRef: (el) => { this.capEl = el; },
+      trackRef: (el) => { this.trackEl = el; },
+      progRef: (el) => { this.progEl = el; },
+      timeRef: (el) => { this.timeEl = el; },
+      totalRef: (el) => { this.totalEl = el; },
+      iconRef: (el) => { this.iconEl = el; },
+      voiceRef: (el) => { this.voiceEl = el; },
+      ccRef: (el) => { this.ccEl = el; },
+      railRef: (el) => { this.rail = el; },
+      onPlay: () => this.play(),
+      onTogglePlay: () => this.togglePlay(),
+      onReplay: () => this.replay(),
+      onNext: () => this.next(),
+      onScrub: (e) => this.scrub(e),
+      onSelect: (e) => this.setupLesson(+e.currentTarget.dataset.idx),
+      onVoice: () => this.toggleVoice(),
+      onCC: () => this.toggleCC(),
+      onFull: () => this.fullscreen(),
+      onKey: (e) => this.onKeyHandler(e),
+    };
+  }
+}
+</script>
+</body>
+</html>

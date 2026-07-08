@@ -1,0 +1,119 @@
+/* ============================================================
+   iLearn Pro — premium presentation layer, tuned calm for
+   learners with learning disabilities (static glows, no bobbing).
+   Sits on top of styles.css; the animated player controls are
+   real engine controls (animations.js), not a bolt-on.
+   ============================================================ */
+:root{
+  --pro-accent:#12A7A4; --pro-accent-2:#39D6C9; --pro-blue:#315DF6; --pro-gold:#F4B740;
+  --pro-stage-1:#08243b; --pro-stage-2:#143A58;
+  --pro-shadow:0 28px 70px -44px rgba(6,24,38,.66);
+}
+
+/* ---- ambient background + premium cards ---- */
+body{
+  background:
+    radial-gradient(900px 520px at 92% -10%,rgba(18,167,164,.14),transparent 62%),
+    radial-gradient(760px 420px at -4% 16%,rgba(49,93,246,.08),transparent 58%),
+    linear-gradient(180deg,#F7FBFC 0%,#EEF5F8 100%);
+}
+.topbar{box-shadow:0 16px 38px -34px rgba(7,24,39,.5)}
+.hero,.panel,.tasks-wrap,.cert-card,.auth-card{box-shadow:var(--pro-shadow);border-color:rgba(18,63,98,.10)}
+.hero{background:linear-gradient(135deg,#fff 0%,#F7FCFD 72%)}
+.lrow.is-next{background:linear-gradient(135deg,#fff,#F2FEFC)}
+.auth-card{position:relative}
+.auth-card::before{content:'';position:absolute;left:28px;right:28px;top:0;height:4px;border-radius:0 0 999px 999px;background:linear-gradient(90deg,var(--pro-accent),var(--pro-blue),var(--pro-gold))}
+.auth-badge{text-align:center;margin:4px 0 4px}
+.auth .hint{max-width:36rem;margin-left:auto;margin-right:auto}
+.auth .lede{max-width:38rem}
+.policy-links{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 14px;margin-top:20px;font-size:12px}
+.policy-links a{color:#36576b;text-decoration:none;font-weight:700}
+.policy-links a:hover{text-decoration:underline;color:#0E6E70}
+
+/* ---- animated lesson stage: premium dark glass ---- */
+.video{aspect-ratio:16/9;min-height:330px;border:1px solid rgba(255,255,255,.14);box-shadow:0 28px 80px -46px rgba(0,0,0,.8)}
+.az-host{border-radius:20px!important;background:linear-gradient(135deg,var(--pro-stage-1),var(--pro-stage-2))!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}
+.az-host::after{content:'';position:absolute;inset:0;background:radial-gradient(600px 300px at 80% 8%,rgba(57,214,201,.14),transparent 60%);pointer-events:none;z-index:1}
+.az-scene,.az-cur,.az-rip,.az-cap,.az-prog,.az-replay,.az-tools,.az-strap{z-index:2}
+.az-prog{height:6px;background:linear-gradient(90deg,var(--pro-accent),var(--pro-blue),var(--pro-gold))}
+/* glass caption — high contrast for legibility */
+.az-cap{left:16px!important;right:16px!important;bottom:16px!important;border:1px solid rgba(255,255,255,.16)!important;border-radius:16px!important;background:rgba(8,26,42,.86)!important;backdrop-filter:blur(10px);box-shadow:0 16px 34px -24px rgba(0,0,0,.8)}
+.az-cap p{color:#fff!important;font-weight:650}
+.az-cap .d{background:var(--pro-accent-2)!important}
+/* cursor + ripple — bigger, clear, but NOT bobbing (calm) */
+.az-cur{width:28px!important;height:28px!important;filter:drop-shadow(0 3px 6px rgba(0,0,0,.45)) drop-shadow(0 0 8px rgba(255,255,255,.6))}
+.az-rip{border-color:var(--pro-gold)!important}
+/* app windows float on the stage */
+.az-win,.az-xl{border-radius:16px;margin:16px 16px 92px 16px;overflow:hidden;box-shadow:0 22px 56px -36px rgba(0,0,0,.78);border:1px solid rgba(255,255,255,.22)}
+.az-con{background:linear-gradient(160deg,#0d2d49,#13405f)!important;color:#eaf7f7!important;margin:0;border-radius:16px}
+.az-con .t{color:#fff!important}.az-con .pill{background:rgba(255,255,255,.12)!important;border-color:rgba(255,255,255,.22)!important;color:#eafcff!important}
+/* active highlights — static glow (no pulsing animation) */
+.az-btn.hot{box-shadow:0 0 0 3px rgba(18,167,164,.35),0 0 18px rgba(18,167,164,.3)!important}
+.az-c.sum{box-shadow:inset 0 0 0 2px #e0a92e,0 0 14px rgba(224,169,46,.25)!important}
+.az-c.tot{box-shadow:inset 0 0 0 2px var(--pro-accent),0 0 16px rgba(18,167,164,.3)!important}
+.az-replay.show{background:rgba(5,14,24,.74);backdrop-filter:blur(4px)}
+.az-replay .b{background:linear-gradient(135deg,#fff,#E9FFFC);color:#07263E;box-shadow:0 16px 44px -26px rgba(0,0,0,.8)}
+
+/* ---- player controls (real engine buttons) ---- */
+.az-strap{position:absolute;top:14px;left:14px;color:#DFFDFC;background:rgba(8,26,42,.7);border:1px solid rgba(255,255,255,.16);border-radius:999px;padding:7px 13px;font-weight:700;font-size:12px;backdrop-filter:blur(8px)}
+.az-tools{position:absolute;top:12px;right:12px;display:flex;gap:8px;align-items:center}
+.az-tool{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(255,255,255,.2);background:rgba(8,26,42,.74);color:#fff;backdrop-filter:blur(8px);min-height:38px;border-radius:999px;padding:0 14px;font:700 13px Inter,system-ui;cursor:pointer;transition:background .15s,transform .12s}
+.az-tool:hover{background:rgba(18,167,164,.85);transform:translateY(-1px)}
+.az-tool svg{width:17px;height:17px}
+
+/* ---- task + completion polish ---- */
+.task-n{background:linear-gradient(135deg,var(--pro-accent),var(--pro-blue))}
+.task.is-done{animation:proDone .34s cubic-bezier(.2,1.2,.4,1)}
+@keyframes proDone{0%{transform:scale(.985)}80%{transform:scale(1.008)}100%{transform:scale(1)}}
+.opt:hover:not(:disabled),.task-check:hover{transform:translateY(-1px)}
+.practice-card{margin-top:12px;border:1px solid rgba(18,63,98,.10);background:#F8FCFD;border-radius:14px;padding:14px 15px;display:grid;gap:10px}
+.practice-time{justify-self:start;background:#E7F7F6;color:#075d61;border:1px solid rgba(18,167,164,.22);border-radius:999px;padding:4px 10px;font-weight:800;font-size:12px}
+.practice-detail,.practice-evidence{margin:0;color:#405d70;font-size:calc(13.5px*var(--scale));line-height:1.5}
+.practice-evidence b{color:#143A58}
+.practice-done{justify-self:start}
+.complete-row{background:linear-gradient(135deg,#fff,#F2FFFC);border:1px solid rgba(18,167,164,.16);border-radius:20px;padding:20px;box-shadow:0 20px 52px -42px rgba(6,24,38,.6)}
+.levels button[aria-pressed="true"]{background:linear-gradient(135deg,var(--pro-accent),var(--pro-blue));color:#fff;border-color:transparent}
+.pro-note{margin:18px 0 0;border:1px solid rgba(18,167,164,.18);background:#F3FEFC;border-radius:16px;padding:15px 18px;color:#153344}
+.pro-note b{display:block;margin-bottom:3px;color:#063B50}.pro-note span{color:#557083}
+
+@media(max-width:720px){
+  .video{min-height:250px}
+  .az-win,.az-xl{margin:12px 12px 88px}
+  .az-strap{display:none}
+  .az-tools{top:10px;right:10px;gap:6px}
+  .az-tool{padding:0 11px;font-size:12px}
+  .az-tool[data-act="fullscreen"]{display:none}
+}
+
+/* ---- admin dashboard polish ---- */
+.stats .stat{position:relative;overflow:hidden;background:linear-gradient(135deg,#fff,#F7FDFD);border:1px solid rgba(18,63,98,.09);box-shadow:0 16px 40px -34px rgba(6,24,38,.5)}
+.stats .stat::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,var(--pro-accent),var(--pro-blue))}
+.stats .stat .v.gold{color:var(--pro-accent)}
+.tablewrap{box-shadow:var(--pro-shadow);border:1px solid rgba(18,63,98,.08);border-radius:18px;overflow:hidden}
+.tablewrap thead th{background:#F4FAFB;color:#33586d;letter-spacing:.02em}
+.tablewrap tbody tr{transition:background .14s}
+.tablewrap tbody tr:hover{background:#F4FCFC;cursor:pointer}
+.pbar i{background:linear-gradient(90deg,var(--pro-accent),var(--pro-blue))}
+.pill.completed{background:linear-gradient(135deg,rgba(18,167,164,.16),rgba(49,93,246,.12));color:#0a5b59;border:1px solid rgba(18,167,164,.25)}
+.toolbar .btn-primary{box-shadow:0 14px 30px -20px var(--pro-blue)}
+.search{box-shadow:0 10px 26px -22px rgba(6,24,38,.5)}
+/* drawer */
+.drawer{box-shadow:-30px 0 80px -42px rgba(6,24,38,.55)}
+.drawer .minis .m{background:linear-gradient(135deg,#fff,#F6FDFD);border:1px solid rgba(18,63,98,.08)}
+.callout.ok{background:linear-gradient(135deg,#EEFAF2,#F4FFF9)}
+
+/* ---- certificate polish (print-safe) ---- */
+.certificate{box-shadow:0 40px 95px -52px rgba(6,24,38,.6)}
+.certificate .seal{box-shadow:0 14px 30px -12px rgba(19,138,140,.55)}
+.cert-card{background:linear-gradient(135deg,#fff,#F4FFFC)}
+
+/* ---- keep print clean: drop ambient bg + player skin when printing ---- */
+@media print{
+  body{background:#fff!important}
+  .az-host,.video,.tasks-wrap,.pro-note{box-shadow:none!important}
+  .certificate{box-shadow:none!important}
+}
+
+/* voice on/off button state */
+.az-voice[aria-pressed="true"]{background:linear-gradient(135deg,var(--pro-accent),var(--pro-blue));border-color:transparent}
+.az-voice[aria-pressed="false"]{opacity:.8}
