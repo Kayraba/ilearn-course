@@ -55,6 +55,15 @@ html{scroll-behavior:smooth}
 .ls.done .lsn{background:var(--green);color:#fff}
 .lsbar{flex:1;min-width:14px;max-width:60px;height:2px;background:var(--line)}
 .complete-row.ready{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-tint)}
+.vtrack{position:relative;overflow:visible!important}
+.cp-dot{position:absolute;top:50%;width:13px;height:13px;border-radius:50%;background:#F2A33C;border:2.5px solid #fff;transform:translate(-50%,-50%);z-index:3;pointer-events:none;transition:background .3s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.cp-dot.done{background:var(--green)}
+.cp-overlay{position:absolute;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(8,24,43,.8);backdrop-filter:blur(6px)}
+.cp-card{background:var(--paper);border-radius:var(--r-lg);box-shadow:var(--sh-lg);padding:22px 24px;max-width:580px;width:100%;max-height:94%;overflow:auto;animation:azrise .35s var(--ease)}
+.cp-shake{animation:cpshake .4s}
+@keyframes cpshake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+@media(prefers-reduced-motion:reduce){.cp-shake{animation:none}}
+.opt.reveal{border-color:var(--green);box-shadow:0 0 0 3px var(--green-tint)}
 
 /* buttons */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;font-family:inherit;font-weight:600;font-size:calc(15px*var(--scale));min-height:50px;padding:0 22px;border:1.5px solid transparent;border-radius:999px;cursor:pointer;transition:transform .2s var(--ease),filter .2s,background .2s,border-color .2s,box-shadow .2s;text-align:center;line-height:1.2}
@@ -843,7 +852,7 @@ class Component extends DCLogic {
       </div>`;
     const ol = this.$('#lessonSteps');
     lesson.steps.forEach((s, k) => { const li = document.createElement('li'); li.innerHTML = `<span class="n">${k + 1}</span><span>${this.esc(s)}</span>`; ol.appendChild(li); });
-    this.setupVideo(slug, i);
+    this.setupVideo(slug, i, lesson);
     this.renderActs(lesson);
     this.$('#levels').onclick = (e) => { const b = e.target.closest('button'); if (!b) return; const on = b.getAttribute('aria-pressed') === 'true'; this.$$('#levels button').forEach((x) => x.setAttribute('aria-pressed', 'false')); if (!on) { b.setAttribute('aria-pressed', 'true'); this.chosenLevel = b.dataset.lv; } else this.chosenLevel = null; };
     this.$('#lessonBack').onclick = () => { if (this.stopVideo) this.stopVideo(); this.showCourse(slug); };
@@ -882,6 +891,7 @@ class Component extends DCLogic {
   /* ---------------- interactive activities ---------------- */
   renderActs(lesson) {
     this._actsAllDone = false;
+    this._actFinishers = {};
     const list = this.$('#actList'); const tasks = lesson.tasks; let done = 0;
     const total = tasks.length;
     const bar = this.$('#actsBar'), cnt = this.$('#actsCount'), pctEl = this.$('#actsPct');
@@ -897,6 +907,7 @@ class Component extends DCLogic {
       const slot = card.querySelector('.act-slot'); const fb = card.querySelector('.act-fb');
       const finish = (msg) => { if (card.classList.contains('is-done')) return; card.classList.add('is-done'); done++; upd(); fb.innerHTML = '<span class="ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>' + this.esc(msg || task.ok || 'Well done!') + '</span>'; card.querySelectorAll('button,input').forEach((el) => { el.disabled = true; }); if (done === total) { this._actsAllDone = true; this._lessonStep(2); this.toast('All activities done — brilliant!', 'ok'); } };
       const nudge = (msg) => { fb.innerHTML = '<span class="try">' + this.esc(msg || task.hint || "Not quite — have another go. You can't get it wrong here.") + '</span>'; };
+      this._actFinishers[ti] = finish;
       if (task.type === 'practice') {
         const time = task.minutes ? `<span class="practice-time"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>${task.minutes} min</span><br>` : '';
         slot.innerHTML = `<div class="practice">${time}${task.detail ? `<p class="practice-detail">${this.esc(task.detail)}</p>` : ''}${task.evidence ? `<p class="practice-evidence"><b>Evidence:</b> ${this.esc(task.evidence)}</p>` : ''}<button class="btn btn-primary btn-sm" type="button">Mark practice done</button></div>`;
@@ -920,7 +931,7 @@ class Component extends DCLogic {
 
   /* ---------------- video engine ---------------- */
   fmt(ms) { const s = Math.round(ms / 1000); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); }
-  setupVideo(slug, i) {
+  setupVideo(slug, i, lesson) {
     this.rm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     this.beats = this.buildTimelineFor(slug, i);
     this.vtotal = this.beats.reduce((a, b) => a + b.dur + (b.hold || 0), 0);
@@ -950,6 +961,58 @@ class Component extends DCLogic {
     this.vE.video.setAttribute('tabindex', '0');
     this.vE.video.addEventListener('keydown', (e) => this.vKey(e));
     this.stopVideo = () => { this.vplaying = false; clearInterval(this._tick); cancelAnimationFrame(this._raf); this._hush(); };
+    this._cpBuild(lesson);
+  }
+
+  /* ---- in-video checkpoints (UpLearn-style): the video pauses on a question ---- */
+  _cpBuild(lesson) {
+    this.cpOpen = null;
+    const picks = ((lesson && lesson.tasks) || []).map((t, ti) => ({ t, ti })).filter((x) => x.t.type !== 'practice' && x.t.type !== 'type' && (x.t.options || []).length);
+    const ends = []; let acc = 0; this.beats.forEach((b) => { acc += b.dur + (b.hold || 0); ends.push(acc); });
+    const n = Math.min(4, picks.length, Math.max(0, ends.length - 2));
+    this.cps = [];
+    for (let k = 0; k < n; k++) {
+      // spread by TIME, then snap to the nearest beat boundary (never the last one)
+      const target = (k + 1) / (n + 1) * this.vtotal;
+      let bi = 0, best = Infinity;
+      for (let j = 0; j < ends.length - 1; j++) { const d = Math.abs(ends[j] - target); if (d < best) { best = d; bi = j; } }
+      const pick = picks[Math.floor(k * picks.length / n)];
+      const t = ends[bi];
+      if (this.cps.length && t <= this.cps[this.cps.length - 1].t) continue;
+      this.cps.push({ t, task: pick.t, ti: pick.ti, done: false });
+    }
+    this.vE.track.querySelectorAll('.cp-dot').forEach((d) => d.remove());
+    this.cps.forEach((c) => { const d = document.createElement('span'); d.className = 'cp-dot'; d.style.left = (c.t / this.vtotal * 100) + '%'; this.vE.track.appendChild(d); c.dot = d; });
+  }
+  _cpClamp(t) { const g = (this.cps || []).find((c) => !c.done && t > c.t); return g ? g.t : t; }
+  _cpShow(cp) {
+    if (this.cpOpen === cp) return;
+    this.cpOpen = cp;
+    this.vplaying = false; clearInterval(this._tick); this._hush(); this.vIcon();
+    const old = this.vE.video.querySelector('.cp-overlay'); if (old) old.remove();
+    const ov = document.createElement('div'); ov.className = 'cp-overlay';
+    const shuffled = (cp.task.options || []).slice().sort(() => Math.random() - 0.5);
+    ov.innerHTML = `<div class="cp-card" role="dialog" aria-label="Quick check question"><div class="pip-row" style="margin-bottom:14px">${this.mascot('point', 56)}<div><div style="font:700 12px Nunito,sans-serif;letter-spacing:2px;text-transform:uppercase;color:var(--teal)">Quick check</div><div style="font:700 17px Lexend,sans-serif;color:var(--ink);margin-top:4px">${this.esc(cp.task.q)}</div></div></div><div class="opts">${shuffled.map((o) => `<button class="opt" type="button" data-ok="${o.ok ? 1 : 0}">${this.esc(o.t)}</button>`).join('')}</div><div class="act-fb" aria-live="polite" style="margin-top:10px"></div><div style="display:flex;justify-content:flex-end;margin-top:12px"><button class="btn btn-primary btn-sm" data-cont style="display:none" type="button">Continue the video</button></div></div>`;
+    this.vE.video.appendChild(ov);
+    const card = ov.querySelector('.cp-card'), fb = ov.querySelector('.act-fb'), cont = ov.querySelector('[data-cont]');
+    let misses = 0;
+    ov.querySelector('.opts').onclick = (e) => {
+      const b = e.target.closest('.opt'); if (!b || b.disabled) return;
+      if (b.dataset.ok === '1') {
+        b.classList.add('picked'); ov.querySelectorAll('.opt').forEach((x) => { x.disabled = true; });
+        fb.innerHTML = '<span class="ok">' + this.esc(cp.task.ok || 'Well done!') + '</span>';
+        cp.done = true; if (cp.dot) cp.dot.classList.add('done');
+        if (this._actFinishers && this._actFinishers[cp.ti]) this._actFinishers[cp.ti]('Answered in the video — well done!');
+        cont.style.display = ''; cont.focus();
+      } else {
+        misses++; b.classList.add('wrong'); setTimeout(() => b.classList.remove('wrong'), 450);
+        if (!this.rm) { card.classList.remove('cp-shake'); void card.offsetWidth; card.classList.add('cp-shake'); }
+        fb.innerHTML = '<span class="try">' + this.esc(cp.task.hint || "Not quite — have another go. You can't get it wrong here.") + '</span>';
+        if (misses >= 2) { const right = ov.querySelector('.opt[data-ok="1"]'); if (right) right.classList.add('reveal'); }
+      }
+    };
+    cont.onclick = () => { ov.remove(); this.cpOpen = null; this.vclock = cp.t + 1; this.vlast = performance.now(); this.vPlay(); };
+    const first = ov.querySelector('.opt'); if (first) first.focus();
   }
   vStartTicker() { this.vlast = performance.now(); clearInterval(this._tick); this._tick = setInterval(() => this.vLoop(), 40); }
   vLoop() {
@@ -974,6 +1037,9 @@ class Component extends DCLogic {
       }
     }
     if (this.vclock >= this.vtotal) { this.vclock = this.vtotal; this.vPaint(); this.vSync(); this.vEnd(); return; }
+    const gate = (this.cps || []).find((c) => !c.done && this.vclock >= c.t);
+    if (gate && !(this.voiceOn && this._narrating)) { this.vclock = gate.t; this.vPaint(); this.vSync(); this._cpShow(gate); return; }
+    if (gate) { this.vclock = gate.t; } // narration still finishing — hold here, ask when the sentence ends
     this.vPaint(); this.vSync();
   }
   vPlay() { if (this.vended_) return this.vReplay(); this.vstarted = true; this.vE.poster.style.display = 'none'; this.vE.ended.style.display = 'none'; this.vplaying = true; this.vIcon(); if (this.useAudio && this.master) { this.master.muted = !this.voiceOn; this.master.play().catch(() => {}); if (this.vframe < 0) this.vSync(); this.vStartTicker(); return; } if (this.vframe < 0) this.vSync(); else if (this.voiceOn && this.curBeat && !this._narrating) this.vSpeak(this.curBeat.say, this.curBeat); this.vStartTicker(); }
@@ -996,7 +1062,7 @@ class Component extends DCLogic {
     this._audioWasPlaying = false; this._ttsWasPaused = false;
     return resumed;
   }
-  vToggle() { if (!this.vstarted || this.vended_) return this.vended_ ? this.vReplay() : this.vPlay(); if (this.vplaying) { this.vplaying = false; clearInterval(this._tick); if (this.useAudio && this.master) { try { this.master.pause(); } catch (e) {} } else this._pauseVoice(); this.vIcon(); } else { this.vplaying = true; this.vIcon(); if (this.useAudio && this.master) { this.master.muted = !this.voiceOn; this.master.play().catch(() => {}); } else if (!this._resumeVoice() && this.voiceOn && this.curBeat && !this._narrating) { this.vSpeak(this.curBeat.say, this.curBeat); } this.vStartTicker(); } }
+  vToggle() { if (this.cpOpen) return; if (!this.vstarted || this.vended_) return this.vended_ ? this.vReplay() : this.vPlay(); if (this.vplaying) { this.vplaying = false; clearInterval(this._tick); if (this.useAudio && this.master) { try { this.master.pause(); } catch (e) {} } else this._pauseVoice(); this.vIcon(); } else { this.vplaying = true; this.vIcon(); if (this.useAudio && this.master) { this.master.muted = !this.voiceOn; this.master.play().catch(() => {}); } else if (!this._resumeVoice() && this.voiceOn && this.curBeat && !this._narrating) { this.vSpeak(this.curBeat.say, this.curBeat); } this.vStartTicker(); } }
   vReplay() { this.vclock = 0; this.vframe = -1; this.vended_ = false; this.vstarted = true; this.vE.ended.style.display = 'none'; this.vE.poster.style.display = 'none'; this.vplaying = true; this.vIcon(); if (this.useAudio && this.master) { try { this.master.currentTime = 0; } catch (e) {} this.master.muted = !this.voiceOn; this.master.play().catch(() => {}); } this.vSync(); this.vStartTicker(); }
   vEnd() { this.vplaying = false; clearInterval(this._tick); this._hush(); this.vended_ = true; this.vIcon(); this.vE.ended.style.display = 'flex'; this._lessonStep(this._actsAllDone ? 2 : 1); }
   vIcon() { this.vE.icon.innerHTML = this.vplaying ? '<svg viewBox="0 0 24 24" width="21" height="21" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z"></path></svg>' : '<svg viewBox="0 0 24 24" width="21" height="21" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg>'; }
@@ -1074,8 +1140,8 @@ class Component extends DCLogic {
     };
     speakNext();
   }
-  vScrub(e) { if (!this.vtotal) return; const r = this.vE.track.getBoundingClientRect(); let p = (e.clientX - r.left) / r.width; p = Math.max(0, Math.min(1, p)); this.vstarted = true; this.vE.poster.style.display = 'none'; this.vclock = p * this.vtotal; if (this.vclock < this.vtotal) { this.vended_ = false; this.vE.ended.style.display = 'none'; } this.vframe = -1; if (this.useAudio && this.master) { try { this.master.currentTime = this.vclock / 1000; } catch (e2) {} this.vPaint(); this.vSync(); return; } this._hush(); this.vPaint(); this.vSync(); if (this.vplaying) { this.vlast = performance.now(); if (this.voiceOn && this.curBeat && !this._narrating) this.vSpeak(this.curBeat.say, this.curBeat); } }
-  vSeek(d) { this.vstarted = true; this.vE.poster.style.display = 'none'; this.vclock = Math.max(0, Math.min(this.vtotal, this.vclock + d)); if (this.vclock < this.vtotal) { this.vended_ = false; this.vE.ended.style.display = 'none'; } this.vframe = -1; if (this.useAudio && this.master) { try { this.master.currentTime = this.vclock / 1000; } catch (e2) {} this.vPaint(); this.vSync(); return; } this._hush(); this.vPaint(); this.vSync(); if (this.vplaying) { this.vlast = performance.now(); if (this.voiceOn && this.curBeat && !this._narrating) this.vSpeak(this.curBeat.say, this.curBeat); } }
+  vScrub(e) { if (!this.vtotal) return; if (this.cpOpen) return; const r = this.vE.track.getBoundingClientRect(); let p = (e.clientX - r.left) / r.width; p = Math.max(0, Math.min(1, p)); this.vstarted = true; this.vE.poster.style.display = 'none'; this.vclock = this._cpClamp(p * this.vtotal); if (this.vclock < this.vtotal) { this.vended_ = false; this.vE.ended.style.display = 'none'; } this.vframe = -1; if (this.useAudio && this.master) { try { this.master.currentTime = this.vclock / 1000; } catch (e2) {} this.vPaint(); this.vSync(); return; } this._hush(); this.vPaint(); this.vSync(); if (this.vplaying) { this.vlast = performance.now(); if (this.voiceOn && this.curBeat && !this._narrating) this.vSpeak(this.curBeat.say, this.curBeat); } }
+  vSeek(d) { if (this.cpOpen) return; this.vstarted = true; this.vE.poster.style.display = 'none'; this.vclock = this._cpClamp(Math.max(0, Math.min(this.vtotal, this.vclock + d))); if (this.vclock < this.vtotal) { this.vended_ = false; this.vE.ended.style.display = 'none'; } this.vframe = -1; if (this.useAudio && this.master) { try { this.master.currentTime = this.vclock / 1000; } catch (e2) {} this.vPaint(); this.vSync(); return; } this._hush(); this.vPaint(); this.vSync(); if (this.vplaying) { this.vlast = performance.now(); if (this.voiceOn && this.curBeat && !this._narrating) this.vSpeak(this.curBeat.say, this.curBeat); } }
   vKey(e) { if (e.key === ' ' || e.key === 'k') { e.preventDefault(); this.vToggle(); } else if (e.key === 'ArrowRight') { e.preventDefault(); this.vSeek(10000); } else if (e.key === 'ArrowLeft') { e.preventDefault(); this.vSeek(-10000); } else if (e.key === 'r') this.vReplay(); }
   vVoice() { this.voiceOn = !this.voiceOn; const b = this.vE.voice; b.setAttribute('aria-pressed', String(this.voiceOn)); b.classList.toggle('on', this.voiceOn); if (this.useAudio && this.master) { this.master.muted = !this.voiceOn; } else if (!this.voiceOn) { if (window.speechSynthesis) window.speechSynthesis.cancel(); } else if (this.vplaying && this.curBeat) this.vSpeak(this.curBeat.say, this.curBeat); }
   vCC() { this.ccOn = !this.ccOn; this.vE.capwrap.style.display = this.ccOn ? 'flex' : 'none'; this.vE.cc.setAttribute('aria-pressed', String(this.ccOn)); this.vE.cc.classList.toggle('on', this.ccOn); }
